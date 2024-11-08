@@ -4,10 +4,11 @@ import openai
 
 load_dotenv()
 
-openai.api_type = "azure"
-openai.api_base = "<YOUR AZURE OPENAI ENDPOINT>"
-openai.api_version = "2023-03-15-preview"
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.AzureOpenAI(
+    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key = os.getenv("OPENAI_API_KEY"),
+    api_version = "2024-02-01",
+)
 
 def get_completion_from_messages(system_message, user_message, model="gpt-4", temperature=0, max_tokens=500) -> str:
 
@@ -16,14 +17,14 @@ def get_completion_from_messages(system_message, user_message, model="gpt-4", te
         {'role': 'user', 'content': f"{user_message}"}
     ]
     
-    response = openai.ChatCompletion.create(
-        engine=model,
+    response = client.chat.completions.create(
+        model=model,
         messages=messages,
         temperature=temperature, 
         max_tokens=max_tokens, 
     )
     
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
     system_message = "You are a helpful assistant"
